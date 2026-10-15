@@ -52,7 +52,9 @@ def main(argv=None) -> int:
             print("  [skip] 未获取到抽奖活动信息\n")
         else:
             result, prizes = ev_mod.analyse(lot, board, args.strategy)
-            mc = ev_mod.monte_carlo(prizes, draws=args.draws)
+            mc = ev_mod.monte_carlo(
+                prizes, result.cost_points, result.redeem_value_per_point, draws=args.draws
+            )
             print(ev_mod.render_ev(result, prizes, lot, mc))
 
     if args.command == "best":

@@ -78,6 +78,19 @@ class TestEV(unittest.TestCase):
         b = ev_mod.monte_carlo(prizes, 24, 0.05, draws=500, seed=1024)
         self.assertEqual(a["total_cny"], b["total_cny"])
 
+    def test_monte_carlo_cost_is_accounted(self):
+        """回归：CLI 曾漏传 cost_points/redeem_rate，导致「消耗 0 积分」的失真输出。"""
+        _, prizes = ev_mod.analyse(self.lottery, self.board, "median")
+        cost_points = 24
+        redeem_rate = 0.05
+        draws = 1000
+        mc = ev_mod.monte_carlo(prizes, cost_points, redeem_rate, draws=draws, seed=1024)
+        self.assertEqual(mc["cost_points"], cost_points * draws)
+        self.assertGreater(mc["alternative_cny"], 0)
+        self.assertAlmostEqual(
+            mc["alternative_cny"], round(cost_points * draws * redeem_rate, 2), places=2
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
